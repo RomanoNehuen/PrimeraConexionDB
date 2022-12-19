@@ -22,11 +22,12 @@ namespace negocio
         public AccesoDatos ()
         {
             conexion = new SqlConnection("server =.\\SQLEXPRESS;database=Pokedex_DB;integrated security=true;");
+            comando = new SqlCommand();
         }
 
         public void SetearComando(string consulta)
         {
-           comando.CommandType = System.Data.CommandType.Text;
+            comando.CommandType = System.Data.CommandType.Text;
             comando.CommandText = consulta;
         }
         
@@ -46,6 +47,20 @@ namespace negocio
             }
    
         }
+        public void EjecutarAccion()
+        {
+            comando.Connection = conexion;
+            try
+            {
+                conexion.Open();
+                comando.ExecuteNonQuery();
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+        }
 
         public void CerrarConexion()
         {
@@ -55,6 +70,11 @@ namespace negocio
             }
             
             conexion.Close();
+        }
+
+        public void SetearParametro(string nombre,object valor)
+        {
+            comando.Parameters.AddWithValue(nombre,valor);
         }
     }
 
