@@ -23,10 +23,16 @@ namespace Primera_conexionDB
         private void Form1_Load(object sender, EventArgs e)
         {
             Cargar();
+
+            cboCampo.Items.Clear();
+            cboCampo.Items.Add("Numero");
+            cboCampo.Items.Add("Nombre");
+            cboCampo.Items.Add("Descripción");
             
-            
+
+
         }
-       
+
         private void dgvPokemon_SelectionChanged(object sender, EventArgs e)
         {
             if (dgvPokemon.CurrentRow != null)
@@ -137,15 +143,102 @@ namespace Primera_conexionDB
             dgvPokemon.Columns["UrlImagen"].Visible = false;
             dgvPokemon.Columns["Id"].Visible = false;
         }
+        
+        private bool ValidarFiltro() 
+        {   // Preguntar si hay algun elemento seleccionado (es como un vector si es menor que cero no hay nada)
+            if (cboCampo.SelectedIndex < 0)
+            {
+                MessageBox.Show("Seleccione campo a filtrar");
+                return true;
+
+            }
+            
+            if(cboCriterio.SelectedIndex < 0)
+            {
+                MessageBox.Show("Seleccione criterio a filtrar");
+                return true;
+            }
+            //validar si el usuario ingreseo numeros o no
+            if(cboCampo.SelectedItem.ToString() == "Numero")
+
+            {   //para que el campo no quede vacio
+                if (string.IsNullOrEmpty(txtFiltroAvanzado.Text))
+                {
+                    MessageBox.Show("Ingrese un numero por favor");
+                    return true;
+
+                }
+                if (!(SoloNumeros(txtFiltroAvanzado.Text)))
+                {
+                    MessageBox.Show("Solo ingrese números");
+                    return true;
+                }
+            }
+            return false;
+        }
+        private bool SoloNumeros(string cadena) 
+        {
+            //recorrer lo que puso la persona para validar que sean solo numeros
+            foreach (char caracter in cadena)
+            {
+                if (!(char.IsNumber(caracter)))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+        
         private void btnFiltro_Click(object sender, EventArgs e)
+        { PokemonDatos negocio = new PokemonDatos();
+            try
+            {
+                if (ValidarFiltro())
+                    return;
+
+                string campo = cboCampo.SelectedItem.ToString();
+                string criterio = cboCriterio.SelectedItem.ToString();
+                string filtro = txtFiltroAvanzado.Text;
+                dgvPokemon.DataSource = negocio.filtrar(campo, criterio, filtro);
+
+            }
+            catch (Exception ex )
+            {
+
+                MessageBox.Show(ex.ToString());
+            }
+            //List<Pokemon> listaFiltrada;
+            
+            //string filtro = txtfiltro.Text;
+            
+            //if(filtro != "")
+            //{
+                        // lamnda exprecion //
+
+              //  listaFiltrada = listapokemon.FindAll(x => x.Nombre.ToUpper().Contains (filtro.ToUpper()) || x.Tipo.Descripcion.ToUpper().Contains(filtro.ToUpper()));
+
+            //}
+            //else
+            //{
+              //  listaFiltrada = listapokemon;
+            //}
+
+            //dgvPokemon.DataSource = null;
+            //dgvPokemon.DataSource = listaFiltrada;
+            //ocultarColumunas();
+
+
+        }
+
+        private void txtfiltro_TextChanged(object sender, EventArgs e)
         {
             List<Pokemon> listaFiltrada;
-            
+
             string filtro = txtfiltro.Text;
-            
-            if(filtro != "")
+
+            if (filtro.Length >= 2)
             {
-                listaFiltrada = listapokemon.FindAll(x => x.Nombre.ToUpper().Contains (filtro.ToUpper()) || x.Tipo.Descripcion.ToUpper().Contains(filtro.ToUpper()));
+                listaFiltrada = listapokemon.FindAll(x => x.Nombre.ToUpper().Contains(filtro.ToUpper()) || x.Tipo.Descripcion.ToUpper().Contains(filtro.ToUpper()));
 
             }
             else
@@ -157,7 +250,28 @@ namespace Primera_conexionDB
             dgvPokemon.DataSource = listaFiltrada;
             ocultarColumunas();
 
+        }
 
+        private void cboCampo_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            string opcion = cboCampo.SelectedItem.ToString();
+
+            if (opcion == "Numero")
+            {
+                cboCriterio.Items.Clear();
+                cboCriterio.Items.Add("Mayor a");
+                cboCriterio.Items.Add("Menor a");
+                cboCriterio.Items.Add("Igual a");
+            }
+            else
+            {
+                cboCriterio.Items.Clear();
+                cboCriterio.Items.Add("Comienza con");
+                cboCriterio.Items.Add("Termina con");
+                cboCriterio.Items.Add("Contiene");
+                
+
+            }
         }
     }
 

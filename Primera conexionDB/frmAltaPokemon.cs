@@ -3,18 +3,21 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using dominio;
 using negocio;
+using System.Configuration;
 
 namespace Primera_conexionDB
 {
     public partial class frmAltaPokemon : Form
     {
         private Pokemon pokemon = null;
+        private OpenFileDialog archivo = null;
         public frmAltaPokemon()
         {
             InitializeComponent();
@@ -64,7 +67,10 @@ namespace Primera_conexionDB
 
                 }
                 
-
+                if(archivo != null && txtUrlImagen.Text.ToUpper().Contains("HTTPS"))
+                {
+                    File.Copy(archivo.FileName, ConfigurationManager.AppSettings["Poke-App"] + archivo.SafeFileName);
+                }
                 
                
 
@@ -130,6 +136,23 @@ namespace Primera_conexionDB
             catch (Exception ex)
             {
                 pbxNuevopokemon.Load("https://thumbs.dreamstime.com/b/sin-foto-ni-icono-de-imagen-en-blanco-cargar-im%C3%A1genes-o-falta-marca-no-disponible-pr%C3%B3xima-se%C3%B1al-silueta-naturaleza-simple-marco-215973362.jpg");
+
+            }
+        }
+
+        private void btnAgregarImagen_Click(object sender, EventArgs e)
+        {
+            archivo = new OpenFileDialog();
+            archivo.Filter = "jpg|*.jpg;|png|*.PNG";
+            
+            if(archivo.ShowDialog() == DialogResult.OK)
+            {
+                txtUrlImagen.Text = archivo.FileName;
+                cargarImagen(archivo.FileName);
+
+                //guardar imangen tengo que usar un using "file"
+                // hay que incluir una referencia system.configuration y aplicar el using.
+               //File.Copy(archivo.FileName, ConfigurationManager.AppSettings["Poke-App"] + archivo.SafeFileName);
 
             }
         }

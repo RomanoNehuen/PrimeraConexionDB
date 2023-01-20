@@ -143,6 +143,109 @@ namespace negocio
             }
         }
 
+        public List<Pokemon> filtrar(string campo, string criterio, string filtro)
+        {
+            List<Pokemon> lista = new List<Pokemon>();
+            AccesoDatos datos = new AccesoDatos();
+            try
+            {
+                string consulta = "Select P.Numero,P.Nombre,P.Descripcion, P.UrlImagen, E.Descripcion Tipo, D.Descripcion Debilidad, P.IdTipo, P.IdDebilidad, P.Id from POKEMONS P, ELEMENTOS E, ELEMENTOS D where P.IdTipo = E.Id and D.Id = P.IdDebilidad and P.Activo = 1 and ";
+
+                switch (campo)
+
+                {
+                    case "Numero":
+
+                       
+                            switch (criterio)
+                            {
+
+                                case "Mayor a":
+                                    consulta += "Numero > " + filtro;
+                                    break;
+                                case "Menor a":
+                                    consulta += "Numero < " + filtro;
+                                    break;
+
+                                default:
+                                    consulta += "Numero == " + filtro;
+                                    break;
+                            }
+                            break;
+                      
+                    case "Nombre":
+                        
+                        switch (criterio)
+                        {
+                            case "Empieza con":
+                                consulta += "Nombre like '" + filtro + "%'";
+                                break;
+                            case "Termina con":
+                                consulta += "Nombre like '%" + filtro + "'";
+
+                                break;
+
+                            default:
+                                consulta += "Nombre like '%" + filtro + "%'";
+                                break;
+                        }
+                        break;
+
+                    default:
+                        switch (criterio)
+                        {
+                            case "Empieza con":
+                                consulta += "P.Descripcion like '" + filtro + "%'";
+                                break;
+                            case "Termina con":
+                                consulta += "P.Descripcion like '%" + filtro + "'";
+
+                                break;
+
+                            default:
+                                consulta += "P.Descripcion like '%" + filtro + "%'";
+                                break;
+                        }
+                        break;
+
+                }
+                datos.SetearComando(consulta);
+                datos.EjecutarLectura();
+
+                while (datos.Lector.Read())
+
+                {
+                    Pokemon aux = new Pokemon();
+                    aux.Numero = (int)datos.Lector["Numero"];
+                    aux.Nombre = (string)datos.Lector["Nombre"];
+                    aux.Descripcion = (string)datos.Lector["Descripcion"];
+                    aux.Id = (int)datos.Lector["Id"];
+
+
+
+                    if (!(datos.Lector["UrlImagen"] is DBNull))
+                        aux.UrlImagen = (string)datos.Lector["UrlImagen"];
+
+
+                    aux.Tipo = new Elemento();
+                    aux.Tipo.Id = (int)datos.Lector["IdTipo"];
+                    aux.Tipo.Descripcion = (string)datos.Lector["Tipo"];
+                    aux.Debilidad = new Elemento();
+                    aux.Debilidad.Id = (int)datos.Lector["IdDebilidad"];
+                    aux.Debilidad.Descripcion = (string)datos.Lector["Debilidad"];
+                    lista.Add(aux);
+                }
+            }
+
+
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+            return lista;
+        }
+
         public void EliminarLogico(int id)
         {
                AccesoDatos datos = new AccesoDatos();
